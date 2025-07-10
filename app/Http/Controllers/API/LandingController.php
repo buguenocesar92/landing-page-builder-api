@@ -169,15 +169,90 @@ class LandingController extends Controller
     {
         $landing = Landing::where('slug', $slug)
             ->where('is_active', true)
-            ->with('template')
-            ->firstOrFail();
+            ->with(['template', 'user'])
+            ->first();
 
-        // Incrementar contador de vistas
+        if (!$landing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Landing page no encontrada'
+            ], 404);
+        }
+
+        // Incrementar contador de visitas
         $landing->incrementViews();
+
+        // Asegurar que el contenido tenga campos de formulario básicos
+        $content = $landing->content;
+        if (!isset($content['form']) || !isset($content['form']['fields'])) {
+            $content['form'] = [
+                'title' => '¡Contáctanos!',
+                'subtitle' => 'Déjanos tus datos y te contactaremos pronto',
+                'fields' => [
+                    [
+                        'name' => 'name',
+                        'type' => 'text',
+                        'label' => 'Nombre completo',
+                        'required' => true,
+                        'icon' => 'user'
+                    ],
+                    [
+                        'name' => 'email',
+                        'type' => 'email',
+                        'label' => 'Email',
+                        'required' => true,
+                        'icon' => 'mail'
+                    ],
+                    [
+                        'name' => 'phone',
+                        'type' => 'tel',
+                        'label' => 'Teléfono',
+                        'required' => false,
+                        'icon' => 'phone'
+                    ],
+                    [
+                        'name' => 'message',
+                        'type' => 'textarea',
+                        'label' => 'Mensaje',
+                        'required' => false,
+                        'icon' => 'message-square'
+                    ]
+                ],
+                'cta_text' => 'Enviar',
+                'privacy_text' => 'Al enviar este formulario, aceptas nuestros términos y condiciones.'
+            ];
+            
+            // Actualizar el landing con el formulario básico
+            $landing->update(['content' => $content]);
+        }
 
         return response()->json([
             'success' => true,
             'data' => $landing
+        ]);
+    }
+
+    /**
+     * Increment views count for landing page (public endpoint).
+     */
+    public function incrementViews(Landing $landing): JsonResponse
+    {
+        // Solo incrementar si la landing está activa
+        if (!$landing->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La landing page no está disponible'
+            ], 400);
+        }
+
+        $landing->incrementViews();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vista registrada',
+            'data' => [
+                'views_count' => $landing->fresh()->views_count
+            ]
         ]);
     }
 

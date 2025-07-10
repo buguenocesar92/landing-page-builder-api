@@ -52,6 +52,7 @@ Route::prefix('landings')->group(function () {
     // Rutas especiales
     Route::get('/{landing}/analytics', [LandingController::class, 'analytics']);
     Route::post('/{landing}/duplicate', [LandingController::class, 'duplicate']);
+    Route::post('/{landing}/increment-views', [LandingController::class, 'incrementViews']);
 });
 
 // Ruta pública para ver landing por slug
@@ -75,101 +76,73 @@ Route::post('/submit-lead', [LeadController::class, 'store']);
 // ========================================
 // DASHBOARD/STATS ROUTES
 // ========================================
-Route::prefix('dashboard')->group(function () {
-    Route::get('/stats', function (Request $request) {
-        $userId = $request->get('user_id');
+Route::middleware("jwt.auth")->group(function(){
+    Route::get('/dashboard/stats', function() {
+        // Estadísticas básicas para el dashboard
+        $userId = request()->query('user_id', 1); // Temporal mientras no hay auth completo
         
-        $stats = [
-            'total_landings' => \App\Models\Landing::when($userId, function($q) use ($userId) {
-                return $q->where('user_id', $userId);
-            })->count(),
-            
-            'total_leads' => \App\Models\Lead::when($userId, function($q) use ($userId) {
-                return $q->whereHas('landing', function($q2) use ($userId) {
-                    $q2->where('user_id', $userId);
-                });
-            })->count(),
-            
-            'total_views' => \App\Models\Landing::when($userId, function($q) use ($userId) {
-                return $q->where('user_id', $userId);
-            })->sum('views_count'),
-            
-            'active_landings' => \App\Models\Landing::when($userId, function($q) use ($userId) {
-                return $q->where('user_id', $userId);
-            })->where('is_active', true)->count(),
-            
-            'conversion_rate' => (function() use ($userId) {
-                $totalViews = \App\Models\Landing::when($userId, function($q) use ($userId) {
-                    return $q->where('user_id', $userId);
-                })->sum('views_count');
-                
-                $totalLeads = \App\Models\Lead::when($userId, function($q) use ($userId) {
-                    return $q->whereHas('landing', function($q2) use ($userId) {
-                        $q2->where('user_id', $userId);
-                    });
-                })->count();
-                
-                return $totalViews > 0 ? round(($totalLeads / $totalViews) * 100, 2) : 0;
-            })(),
-            
-            'recent_activity' => [
-                'recent_leads' => \App\Models\Lead::with('landing:id,title')
-                    ->when($userId, function($q) use ($userId) {
-                        return $q->whereHas('landing', function($q2) use ($userId) {
-                            $q2->where('user_id', $userId);
-                        });
-                    })
-                    ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get(),
-                    
-                'recent_landings' => \App\Models\Landing::when($userId, function($q) use ($userId) {
-                    return $q->where('user_id', $userId);
-                })
-                ->orderBy('created_at', 'desc')
-                ->limit(5)
-                ->get()
-            ]
-        ];
+        $totalLandings = \App\Models\Landing::where('user_id', $userId)->count();
+        $totalLeads = \App\Models\Lead::whereHas('landing', function($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->count();
+        $totalViews = \App\Models\Landing::where('user_id', $userId)->sum('views_count');
         
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => [
+                'total_landings' => $totalLandings,
+                'total_leads' => $totalLeads,
+                'total_views' => $totalViews,
+                'conversion_rate' => $totalViews > 0 ? round(($totalLeads / $totalViews) * 100, 2) : 0,
+                'recent_activity' => [
+                    'recent_landings' => \App\Models\Landing::where('user_id', $userId)
+                        ->orderBy('created_at', 'desc')
+                        ->limit(5)
+                        ->get(),
+                    'recent_leads' => \App\Models\Lead::whereHas('landing', function($query) use ($userId) {
+                        $query->where('user_id', $userId);
+                    })->orderBy('created_at', 'desc')
+                        ->limit(5)
+                        ->with('landing')
+                        ->get()
+                ]
+            ]
         ]);
     });
 });
 
 // ========================================
-// UTILIDADES
+// UTILITY ROUTES
 // ========================================
-Route::prefix('utils')->group(function () {
-    // Verificar disponibilidad de slug
-    Route::get('/check-slug/{slug}', function (string $slug) {
-        $exists = \App\Models\Landing::where('slug', $slug)->exists();
-        
-        return response()->json([
-            'success' => true,
-            'available' => !$exists,
-            'suggested' => !$exists ? $slug : $slug . '-' . \Illuminate\Support\Str::random(6)
-        ]);
-    });
+Route::post('/utils/generate-slug', function(Request $request) {
+    $validated = $request->validate([
+        'title' => 'required|string|max:255'
+    ]);
     
-    // Generar slug desde título
-    Route::post('/generate-slug', function (Request $request) {
-        $request->validate(['title' => 'required|string']);
-        
-        $baseSlug = \Illuminate\Support\Str::slug($request->title);
-        $slug = $baseSlug;
-        $counter = 1;
-        
-        while (\App\Models\Landing::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-        
-        return response()->json([
-            'success' => true,
+    $baseSlug = \Illuminate\Support\Str::slug($validated['title']);
+    $slug = $baseSlug;
+    $counter = 1;
+    
+    // Verificar unicidad del slug
+    while (\App\Models\Landing::where('slug', $slug)->exists()) {
+        $slug = $baseSlug . '-' . $counter;
+        $counter++;
+    }
+    
+    return response()->json([
+        'success' => true,
+        'data' => ['slug' => $slug]
+    ]);
+});
+
+Route::get('/utils/check-slug/{slug}', function($slug) {
+    $exists = \App\Models\Landing::where('slug', $slug)->exists();
+    
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'available' => !$exists,
             'slug' => $slug
-        ]);
-    });
+        ]
+    ]);
 }); 
