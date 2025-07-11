@@ -201,148 +201,231 @@ class TemplateSeeder extends Seeder
             ]
         ]);
 
-        // Template 2: E-commerce Premium
+        // Template 2: E-commerce Luxury con efectos premium
         Template::create([
             'name' => 'E-commerce Luxury',
-            'description' => 'Template elegante para productos premium con galería de imágenes y efectos parallax',
+            'description' => 'Template elegante para productos premium con efectos visuales sofisticados',
             'preview_image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
             'is_premium' => true,
             'is_active' => true,
             'content' => [
-                'layout' => 'ecommerce-luxury',
+                'layout' => 'luxury-ecommerce',
                 'animations' => [
+                    'hero' => [
+                        'type' => 'fadeInUp',
+                        'delay' => 0.3,
+                        'duration' => 1.0
+                    ],
+                    'features' => [
+                        'type' => 'slideInLeft',
+                        'delay' => 0.2,
+                        'duration' => 0.8
+                    ],
+                    'cta' => [
+                        'type' => 'bounceIn',
+                        'delay' => 0.6,
+                        'duration' => 1.2
+                    ],
                     'parallax' => [
                         'enabled' => true,
                         'speed' => 0.5
-                    ],
-                    'image_gallery' => [
-                        'type' => 'lightbox',
-                        'transition' => 'fade'
                     ]
                 ],
                 'hero' => [
-                    'title' => 'Colección Exclusiva 2025',
-                    'subtitle' => 'Elegancia Redefinida',
-                    'description' => 'Descubre nuestra línea más exclusiva, diseñada para quienes buscan lo extraordinario.',
+                    'title' => 'Artesanía de Lujo',
+                    'subtitle' => 'Exclusiva Colección Premium',
+                    'description' => 'Descubre piezas únicas creadas por maestros artesanos con más de 50 años de experiencia.',
                     'cta_text' => 'Explorar Colección',
                     'background' => [
                         'type' => 'image',
-                        'url' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920',
-                        'overlay' => 'rgba(0,0,0,0.4)',
-                        'parallax' => true
+                        'url' => 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200',
+                        'overlay' => 'rgba(0,0,0,0.4)'
                     ]
                 ],
                 'product_showcase' => [
-                    'title' => 'Productos Destacados',
-                    'items' => [
+                    'title' => 'Colección Exclusiva',
+                    'subtitle' => 'Cada pieza cuenta una historia',
+                    'products' => [
                         [
-                            'name' => 'Reloj Platinum Elite',
-                            'price' => '2,999',
-                            'currency' => 'USD',
-                            'image' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600',
-                            'gallery' => [
-                                'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600',
+                            'name' => 'Reloj Artesanal Oro',
+                            'price' => '€2,450',
+                            'images' => [
                                 'https://images.unsplash.com/photo-1594534475808-b18fc33b045e?w=600',
-                                'https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=600'
+                                'https://images.unsplash.com/photo-1508057198894-247b23d32589?w=600'
                             ],
-                            'description' => 'Reloj suizo de lujo con movimiento automático y caja de platino.'
+                            'description' => 'Reloj de oro de 18 quilates con mecanismo suizo',
+                            'gallery_enabled' => true
                         ],
                         [
-                            'name' => 'Anillo Diamante Imperial',
-                            'price' => '5,499',
-                            'currency' => 'USD',
-                            'image' => 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600',
-                            'gallery' => [
+                            'name' => 'Anillo Diamante Vintage',
+                            'price' => '€3,200',
+                            'images' => [
                                 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600',
                                 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600'
                             ],
-                            'description' => 'Anillo de compromiso con diamante de 2 quilates y certificación GIA.'
+                            'description' => 'Anillo vintage con diamante de 2 quilates',
+                            'gallery_enabled' => true
                         ]
                     ]
                 ],
                 'video_section' => [
-                    'title' => 'Artesanía Excepcional',
-                    'subtitle' => 'Cada pieza es única',
+                    'title' => 'El Arte de la Perfección',
+                    'subtitle' => 'Conoce nuestro proceso artesanal',
                     'video_url' => 'https://player.vimeo.com/video/example',
-                    'thumbnail' => 'https://images.unsplash.com/photo-1565372722299-73fa96c3a3ee?w=1200'
+                    'thumbnail' => 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=800',
+                    'description' => 'Cada pieza requiere más de 40 horas de trabajo manual meticuloso.'
+                ],
+                'testimonials' => [
+                    'title' => 'Testimonios de Clientes',
+                    'items' => [
+                        [
+                            'name' => 'Isabella Rodriguez',
+                            'position' => 'Coleccionista de Arte',
+                            'avatar' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100',
+                            'content' => 'Calidad excepcional y servicio impecable. Cada pieza es verdaderamente única.',
+                            'rating' => 5
+                        ]
+                    ]
                 ],
                 'colors' => [
-                    'primary' => '#d4af37',
-                    'secondary' => '#1f1f1f',
-                    'accent' => '#ffffff',
-                    'text' => '#333333',
-                    'background' => '#fafafa'
+                    'primary' => '#1f2937',
+                    'secondary' => '#111827',
+                    'accent' => '#d4af37',
+                    'text' => '#1f2937',
+                    'background' => '#f9fafb'
                 ],
                 'fonts' => [
                     'heading' => 'Playfair Display',
                     'body' => 'Lato'
+                ],
+                'form' => [
+                    'title' => 'Solicita Información Exclusiva',
+                    'subtitle' => 'Accede a nuestra colección privada',
+                    'fields' => [
+                        [
+                            'name' => 'name',
+                            'type' => 'text',
+                            'label' => 'Nombre completo',
+                            'required' => true,
+                            'icon' => 'user'
+                        ],
+                        [
+                            'name' => 'email',
+                            'type' => 'email',
+                            'label' => 'Email',
+                            'required' => true,
+                            'icon' => 'mail'
+                        ],
+                        [
+                            'name' => 'phone',
+                            'type' => 'tel',
+                            'label' => 'Teléfono',
+                            'required' => false,
+                            'icon' => 'phone'
+                        ]
+                    ],
+                    'cta_text' => 'Solicitar Información',
+                    'privacy_text' => 'Tus datos están protegidos y no serán compartidos con terceros.'
                 ]
             ]
         ]);
 
-        // Template 3: Startup Tech con Interacciones
+        // Template 3: Startup Tech con interacciones dinámicas
         Template::create([
             'name' => 'Startup Tech Interactive',
-            'description' => 'Template dinámico para startups tech con elementos interactivos y micro-animaciones',
-            'preview_image' => 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800',
+            'description' => 'Template dinámico para startups tech con elementos interactivos y modernos',
+            'preview_image' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800',
             'is_premium' => false,
             'is_active' => true,
             'content' => [
                 'layout' => 'startup-tech',
                 'animations' => [
-                    'counter' => [
-                        'enabled' => true,
-                        'duration' => 2.0
+                    'hero' => [
+                        'type' => 'staggeredFadeIn',
+                        'delay' => 0.2,
+                        'duration' => 0.6
+                    ],
+                    'features' => [
+                        'type' => 'slideInRight',
+                        'delay' => 0.1,
+                        'duration' => 0.7
+                    ],
+                    'cta' => [
+                        'type' => 'bounceIn',
+                        'delay' => 0.4,
+                        'duration' => 1.0
                     ],
                     'typing_effect' => [
                         'enabled' => true,
                         'texts' => [
-                            'Desarrollamos Apps',
-                            'Creamos Soluciones',
-                            'Innovamos Procesos'
+                            'Revolutionizing Tech',
+                            'Building the Future',
+                            'Innovation at Scale'
                         ],
                         'speed' => 100
+                    ],
+                    'counter' => [
+                        'enabled' => true,
+                        'duration' => 2.0
                     ]
                 ],
                 'hero' => [
-                    'title' => 'Transformamos Ideas en',
-                    'typing_text' => 'Realidad Digital',
-                    'description' => 'Somos un equipo de desarrolladores apasionados que convertimos tus ideas en productos digitales exitosos.',
-                    'cta_text' => 'Conversemos',
+                    'title' => 'Construyendo el Futuro',
+                    'subtitle' => 'Tecnología que Transforma',
+                    'description' => 'Somos una startup que desarrolla soluciones tecnológicas innovadoras para los desafíos del mañana.',
+                    'cta_text' => 'Ver Demo',
                     'background' => [
                         'type' => 'particle_animation',
-                        'color' => '#3b82f6',
-                        'count' => 50
+                        'particle_count' => 50,
+                        'particle_colors' => ['#3b82f6', '#1e40af', '#fbbf24']
+                    ]
+                ],
+                'features' => [
+                    'title' => 'Características Revolucionarias',
+                    'subtitle' => 'Tecnología de vanguardia',
+                    'items' => [
+                        [
+                            'icon' => 'zap',
+                            'title' => 'IA Generativa',
+                            'description' => 'Algoritmos de machine learning de última generación'
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Blockchain Security',
+                            'description' => 'Seguridad descentralizada y transparente'
+                        ],
+                        [
+                            'icon' => 'trending-up',
+                            'title' => 'Escalabilidad Cloud',
+                            'description' => 'Infraestructura que crece con tu negocio'
+                        ]
                     ]
                 ],
                 'stats' => [
-                    'title' => 'Resultados que hablan por sí solos',
+                    'title' => 'Números que Impresionan',
                     'items' => [
                         [
-                            'number' => 150,
+                            'number' => 50000,
                             'suffix' => '+',
-                            'label' => 'Proyectos Completados',
-                            'icon' => 'check-circle'
+                            'label' => 'Usuarios Activos'
                         ],
                         [
-                            'number' => 98,
+                            'number' => 99.9,
                             'suffix' => '%',
-                            'label' => 'Clientes Satisfechos',
-                            'icon' => 'heart'
+                            'label' => 'Uptime'
                         ],
                         [
-                            'number' => 5,
-                            'suffix' => '',
-                            'label' => 'Años de Experiencia',
-                            'icon' => 'award'
+                            'number' => 24,
+                            'suffix' => '/7',
+                            'label' => 'Soporte'
                         ]
                     ]
                 ],
                 'interactive_demo' => [
-                    'title' => 'Probá nuestra plataforma',
-                    'subtitle' => 'Demo interactivo en tiempo real',
-                    'enabled' => true,
-                    'iframe_url' => 'https://demo.example.com/interactive'
+                    'title' => 'Prueba Nuestra Tecnología',
+                    'subtitle' => 'Demo interactivo en vivo',
+                    'embed_code' => '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/example" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>',
+                    'cta_text' => 'Iniciar Demo'
                 ],
                 'colors' => [
                     'primary' => '#3b82f6',
@@ -350,6 +433,32 @@ class TemplateSeeder extends Seeder
                     'accent' => '#fbbf24',
                     'text' => '#1f2937',
                     'background' => '#ffffff'
+                ],
+                'fonts' => [
+                    'heading' => 'Poppins',
+                    'body' => 'Nunito'
+                ],
+                'form' => [
+                    'title' => 'Únete a la Revolución Tech',
+                    'subtitle' => 'Sé parte del cambio',
+                    'fields' => [
+                        [
+                            'name' => 'name',
+                            'type' => 'text',
+                            'label' => 'Nombre',
+                            'required' => true,
+                            'icon' => 'user'
+                        ],
+                        [
+                            'name' => 'email',
+                            'type' => 'email',
+                            'label' => 'Email',
+                            'required' => true,
+                            'icon' => 'mail'
+                        ]
+                    ],
+                    'cta_text' => 'Comenzar Ahora',
+                    'privacy_text' => 'Respetamos tu privacidad y nunca enviamos spam.'
                 ]
             ]
         ]);

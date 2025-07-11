@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TemplateController;
 use App\Http\Controllers\API\LandingController;
 use App\Http\Controllers\API\LeadController;
+use App\Http\Controllers\API\ProductClickController;
 use App\Http\Controllers\AuthController;
 
 // Ruta de testing
@@ -40,19 +41,21 @@ Route::prefix('templates')->group(function () {
 });
 
 // ========================================
-// LANDING PAGES ROUTES
+// LANDING PAGES ROUTES (PROTEGIDAS)
 // ========================================
-Route::prefix('landings')->group(function () {
-    Route::get('/', [LandingController::class, 'index']);
-    Route::post('/', [LandingController::class, 'store']);
-    Route::get('/{landing}', [LandingController::class, 'show']);
-    Route::put('/{landing}', [LandingController::class, 'update']);
-    Route::delete('/{landing}', [LandingController::class, 'destroy']);
-    
-    // Rutas especiales
-    Route::get('/{landing}/analytics', [LandingController::class, 'analytics']);
-    Route::post('/{landing}/duplicate', [LandingController::class, 'duplicate']);
-    Route::post('/{landing}/increment-views', [LandingController::class, 'incrementViews']);
+Route::middleware("jwt.auth")->group(function(){
+    Route::prefix('landings')->group(function () {
+        Route::get('/', [LandingController::class, 'index']);
+        Route::post('/', [LandingController::class, 'store']);
+        Route::get('/{landing}', [LandingController::class, 'show']);
+        Route::put('/{landing}', [LandingController::class, 'update']);
+        Route::delete('/{landing}', [LandingController::class, 'destroy']);
+        
+        // Rutas especiales
+        Route::get('/{landing}/analytics', [LandingController::class, 'analytics']);
+        Route::post('/{landing}/duplicate', [LandingController::class, 'duplicate']);
+        Route::post('/{landing}/increment-views', [LandingController::class, 'incrementViews']);
+    });
 });
 
 // Ruta pública para ver landing por slug
@@ -74,12 +77,33 @@ Route::prefix('leads')->group(function () {
 Route::post('/submit-lead', [LeadController::class, 'store']);
 
 // ========================================
+// PRODUCT CLICKS / ANALYTICS ROUTES
+// ========================================
+
+// Ruta pública para registrar clics en productos
+Route::post('/track-product-click', [ProductClickController::class, 'track']);
+
+// Rutas protegidas para ver estadísticas
+Route::middleware("jwt.auth")->group(function(){
+    Route::prefix('product-analytics')->group(function () {
+        // Estadísticas por landing page
+        Route::get('/landing/{landing}/stats', [ProductClickController::class, 'getStats']);
+        
+        // Estadísticas globales de productos
+        Route::get('/global-stats', [ProductClickController::class, 'getGlobalStats']);
+        
+        // Detalles específicos de un producto
+        Route::get('/landing/{landing}/product/{productName}', [ProductClickController::class, 'getProductDetails']);
+    });
+});
+
+// ========================================
 // DASHBOARD/STATS ROUTES
 // ========================================
 Route::middleware("jwt.auth")->group(function(){
     Route::get('/dashboard/stats', function() {
-        // Estadísticas básicas para el dashboard
-        $userId = request()->query('user_id', 1); // Temporal mientras no hay auth completo
+        // 🔒 SEGURIDAD: Usar usuario autenticado
+        $userId = auth()->user()->id;
         
         $totalLandings = \App\Models\Landing::where('user_id', $userId)->count();
         $totalLeads = \App\Models\Lead::whereHas('landing', function($query) use ($userId) {

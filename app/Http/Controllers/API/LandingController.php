@@ -17,12 +17,9 @@ class LandingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Landing::with(['template', 'user']);
-
-        // Filtro por usuario (temporal sin auth)
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
+        // 🔒 SEGURIDAD: Solo mostrar landing pages del usuario autenticado
+        $query = Landing::with(['template', 'user'])
+            ->where('user_id', auth()->user()->id);
 
         // Filtro por estado activo
         if ($request->has('active')) {
@@ -49,7 +46,6 @@ class LandingController extends Controller
     {
         try {
             $validated = $request->validate([
-                'user_id' => 'required|exists:users,id',
                 'template_id' => 'required|exists:templates,id',
                 'title' => 'required|string|max:255',
                 'slug' => 'nullable|string|unique:landings,slug',
@@ -58,6 +54,9 @@ class LandingController extends Controller
                 'custom_domain' => 'nullable|string|url',
                 'is_active' => 'boolean',
             ]);
+
+            // 🔒 SEGURIDAD: Asignar automáticamente el usuario autenticado
+            $validated['user_id'] = auth()->user()->id;
 
             // Auto-generar slug si no se proporciona
             if (empty($validated['slug'])) {
@@ -96,6 +95,14 @@ class LandingController extends Controller
      */
     public function show(Landing $landing): JsonResponse
     {
+        // 🔒 SEGURIDAD: Verificar que el usuario sea el propietario
+        if ($landing->user_id !== auth()->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos para ver esta landing page'
+            ], 403);
+        }
+
         $landing->load(['template', 'user', 'leads']);
 
         return response()->json([
@@ -109,6 +116,14 @@ class LandingController extends Controller
      */
     public function update(Request $request, Landing $landing): JsonResponse
     {
+        // 🔒 SEGURIDAD: Verificar que el usuario sea el propietario
+        if ($landing->user_id !== auth()->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos para editar esta landing page'
+            ], 403);
+        }
+
         try {
             $validated = $request->validate([
                 'template_id' => 'sometimes|exists:templates,id',
@@ -154,6 +169,14 @@ class LandingController extends Controller
      */
     public function destroy(Landing $landing): JsonResponse
     {
+        // 🔒 SEGURIDAD: Verificar que el usuario sea el propietario
+        if ($landing->user_id !== auth()->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos para eliminar esta landing page'
+            ], 403);
+        }
+
         $landing->delete();
 
         return response()->json([

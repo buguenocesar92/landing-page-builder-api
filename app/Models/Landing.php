@@ -53,6 +53,14 @@ class Landing extends Model
     }
 
     /**
+     * Get the product clicks for this landing.
+     */
+    public function productClicks(): HasMany
+    {
+        return $this->hasMany(ProductClick::class);
+    }
+
+    /**
      * Scope for active landings.
      */
     public function scopeActive($query)
